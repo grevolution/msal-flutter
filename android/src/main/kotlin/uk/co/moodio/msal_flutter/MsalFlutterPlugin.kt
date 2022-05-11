@@ -87,6 +87,7 @@ class MsalFlutterPlugin: MethodCallHandler {
         val scopesArg : ArrayList<String>? = call.argument("scopes")
         val scopes: Array<String>? = scopesArg?.toTypedArray()
         val clientId : String? = call.argument("clientId")
+        val redirectUri : String? = call.argument("redirectUri")
         val authority : String? = call.argument("authority")
 
         Log.d("MsalFlutter","Got scopes: $scopes")
@@ -95,7 +96,7 @@ class MsalFlutterPlugin: MethodCallHandler {
 
         when(call.method){
             "logout" -> Thread(Runnable{logout(result)}).start()
-            "initialize" -> initialize(clientId, authority, result)
+            "initialize" -> initialize(clientId, authority, redirectUri, result)
             "acquireToken" -> Thread(Runnable {acquireToken(scopes, result)}).start()
             "acquireTokenSilent" -> Thread(Runnable {acquireTokenSilent(scopes, result)}).start()
             else -> result.notImplemented()
@@ -168,12 +169,19 @@ class MsalFlutterPlugin: MethodCallHandler {
         }
     }
 
-    private fun initialize(clientId: String?, authority: String?, result: Result)
+    private fun initialize(clientId: String?, authority: String?, redirectUri: String?, result: Result)
     {
         //ensure clientid provided
         if(clientId == null){
             Log.d("MsalFlutter","error no clientId")
             result.error("NO_CLIENTID", "Call must include a clientId", null)
+            return
+        }
+
+        //ensure clientid provided
+        if(redirectUri == null){
+            Log.d("MsalFlutter","error no redirectUri")
+            result.error("NO_REDIRECT_URI", "Call must include a redirectUri", null)
             return
         }
 
@@ -192,10 +200,10 @@ class MsalFlutterPlugin: MethodCallHandler {
         if(authority != null){
             Log.d("MsalFlutter", "Authority not null")
             Log.d("MsalFlutter", "Creating with: $clientId - $authority")
-            PublicClientApplication.create(mainActivity.applicationContext, clientId, authority, getApplicationCreatedListener(result))
+            PublicClientApplication.create(mainActivity.applicationContext, clientId, authority, redirectUri, getApplicationCreatedListener(result))
         }else{
             Log.d("MsalFlutter", "Authority null")
-            PublicClientApplication.create(mainActivity.applicationContext, clientId, getApplicationCreatedListener(result))
+            PublicClientApplication.create(mainActivity.applicationContext, clientId, null, redirectUri, getApplicationCreatedListener(result))
         }
     }
 
