@@ -92,6 +92,7 @@ class MsalFlutterPlugin: MethodCallHandler {
 
         Log.d("MsalFlutter","Got scopes: $scopes")
         Log.d("MsalFlutter","Got cleintId: $clientId")
+        Log.d("MsalFlutter","Got cleintId: $redirectUri")
         Log.d("MsalFlutter","Got authority: $authority")
 
         when(call.method){

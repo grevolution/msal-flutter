@@ -6,24 +6,26 @@ import 'msal_exception.dart';
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
-  String _clientId, _authority;
+  String _clientId, _authority, _redirectUri;
 
   /// Create a new PublicClientApplication authenticating as the given [clientId],
   /// optionally against the selected [authority], defaulting to the common
-  PublicClientApplication(String clientId, {String authority}) {
+  PublicClientApplication(String clientId, String redirectUri, {String authority}) {
     throw Exception(
         "Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
   }
 
-  PublicClientApplication._create(String clientId, {String authority}) {
+  PublicClientApplication._create(String clientId, String redirectUri, {String authority}) {
     _clientId = clientId;
     _authority = authority;
+    _redirectUri = redirectUri;
   }
 
   static Future<PublicClientApplication> createPublicClientApplication(
       String clientId,
+      String redirectUri,
       {String authority}) async {
-    var res = PublicClientApplication._create(clientId, authority: authority);
+    var res = PublicClientApplication._create(clientId, redirectUri, authority: authority);
     await res._initialize();
     return res;
   }
@@ -94,7 +96,7 @@ class PublicClientApplication {
 
   //initialize the main client platform side
   Future _initialize() async {
-    var res = <String, dynamic>{'clientId': this._clientId};
+    var res = <String, dynamic>{'clientId': this._clientId, 'redirectUri': this._redirectUri};
     //if authority has been set, add it aswell
     if (this._authority != null) {
       res["authority"] = this._authority;
